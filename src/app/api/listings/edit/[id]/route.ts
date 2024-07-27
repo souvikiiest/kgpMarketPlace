@@ -21,7 +21,7 @@ export async function PUT(
   const { id } = params;
 
   try {
-    const decodedValue = verifyToken();
+    const decodedValue = await verifyToken();
     if (!decodedValue)
       return new NextResponse(JSON.stringify({ message: "Unauthorized" }), {
         status: 401,
@@ -102,7 +102,7 @@ export async function DELETE(
 ) {
   const id = context.params.id;
   try {
-    const decodedValue = verifyToken();
+    const decodedValue = await verifyToken();
     if (!decodedValue)
       return new NextResponse(JSON.stringify({ message: "Unauthorized" }), {
         status: 401,

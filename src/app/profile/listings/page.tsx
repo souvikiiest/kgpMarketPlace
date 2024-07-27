@@ -7,7 +7,7 @@ const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET!;
 
 const ListingsPage = async () => {
-  const decoded = verifyToken();
+  const decoded = await verifyToken();
 
   if (!decoded) {
     redirect("/signin");

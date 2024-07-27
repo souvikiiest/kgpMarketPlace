@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     const { name, description, price, condition, category, imageUrl } =
       validatedData.data;
 
-    const decodedValue = verifyToken();
+    const decodedValue = await verifyToken();
     if (!decodedValue)
       return new NextResponse(JSON.stringify({ message: "Unauthorized" }), {
         status: 400,

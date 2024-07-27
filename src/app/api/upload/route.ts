@@ -36,7 +36,7 @@ async function uploadFileToS3(
 }
 
 export async function POST(req: NextRequest) {
-  const decodedValue = verifyToken();
+  const decodedValue = await verifyToken();
 
   const formData = await req.formData();
   const file = formData.get("file") as File;

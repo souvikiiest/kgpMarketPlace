@@ -14,8 +14,8 @@ interface buyerData {
   username: string;
 }
 export default async function itemDetails(context: { params: { id: string } }) {
-  const tokenResponse = verifyToken();
-  const isLoggedIn = tokenResponse ? true : false;
+  const tokenResponse = await verifyToken();
+  const isLoggedIn = tokenResponse?.userId ? true : false;
   let buyer: buyerData = {
     phoneNo: "",
     email: "",
