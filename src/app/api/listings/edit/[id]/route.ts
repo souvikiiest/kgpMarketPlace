@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { redirect } from "next/navigation";
 import { NextRequest, NextResponse } from "next/server";
 import * as z from "zod";
 import verifyToken from "../../../backend-utils/jwt";
@@ -22,10 +23,12 @@ export async function PUT(
 
   try {
     const decodedValue = await verifyToken();
-    if (!decodedValue)
+    if (!decodedValue) {
+      redirect("/signin");
       return new NextResponse(JSON.stringify({ message: "Unauthorized" }), {
         status: 401,
       });
+    }
     const userId = decodedValue.userId;
     const isExisting = await prisma.listing.findUnique({
       where: {

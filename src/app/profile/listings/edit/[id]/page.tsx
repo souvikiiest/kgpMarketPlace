@@ -4,6 +4,7 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 const EditListing = async (context: { params: { id: string } }) => {
   const id = context.params.id;
+
   const data = await prisma.listing.findUnique({
     where: {
       id,
