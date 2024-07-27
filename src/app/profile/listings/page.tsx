@@ -50,7 +50,7 @@ const ListingsPage = async () => {
     <div>
       <h1 className="mb-4 text-2xl font-bold text-center">My Listings</h1>
       <ul className="space-y-2">
-        {listings.map((listing) => (
+        {listings.map((listing: { id: string; title: string }) => (
           <li key={listing.id}>
             <Link
               href={`/profile/listings/${listing.id}`}
