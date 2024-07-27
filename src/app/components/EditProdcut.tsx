@@ -1,74 +1,90 @@
 "use client";
-
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { updateListing } from "../actions/updateListings"; // This should be the path to your server action file
 
-const schema = z.object({
-  id: z.string(),
-  title: z.string().min(3),
-  description: z.string().min(5),
-  price: z.number().positive(),
-  condition: z.enum(["new", "used"]),
-  category: z.string().min(3),
-  images: z.array(z.string()),
-});
-
-type ListingFormData = z.infer<typeof schema>;
-
-export default function EditProductForm({ data }: any) {
+const EditProductForm = ({ data }: any) => {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
-
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    formState: { errors },
-  } = useForm<ListingFormData>({
-    resolver: zodResolver(schema),
-    defaultValues: data,
+  const [formData, setFormData] = useState({
+    title: data.title,
+    description: data.description,
+    price: data.price,
+    condition: data.condition,
+    category: data.category,
   });
+  const [isLoading, setIsLoading] = useState(false);
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
 
-  const onSubmit = async (formData: ListingFormData) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsLoading(true);
-    try {
-      console.log(formData);
-      const response = await fetch(`/api/listings/edit/${data.id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to update listing");
+    if (e.target.files) {
+      const files = Array.from(e.target.files);
+      const fileUrls: string[] = [];
+      for (const file of files) {
+        const fileUrl: string = await handleImageUpload(file);
+        fileUrls.push(fileUrl);
       }
 
-      router.push(`/home`);
+      setImageUrls([...imageUrls, ...fileUrls]);
+      setIsLoading(false);
+    }
+  };
+
+  const handleImageUpload = async (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const uploadResponse = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const uploadData = await uploadResponse.json();
+      if (!uploadData.status) {
+        throw new Error("Failed to upload image");
+      }
+      return uploadData.fileUrl;
     } catch (error) {
-      console.log(error);
+      console.error("Error uploading image:", error);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const updatedData = {
+        ...formData,
+        price: parseFloat(formData.price),
+        imageUrl: imageUrls,
+      };
+      console.log(updatedData);
+      const response = await updateListing(data.id, updatedData);
+
+      if (response.ok) {
+        router.push("/home");
+      } else {
+        console.error("Error updating listing:", response.error);
+      }
+    } catch (error) {
       console.error("Error updating listing:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files) {
-      const imageUrls = Array.from(files).map((file) =>
-        URL.createObjectURL(file)
-      );
-      setValue("images", [...(data?.images || []), ...imageUrls]);
-    }
-  };
-
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6">
       <div>
         <label
           htmlFor="title"
@@ -78,13 +94,12 @@ export default function EditProductForm({ data }: any) {
         </label>
         <input
           id="title"
+          name="title"
           type="text"
-          {...register("title")}
+          value={formData.title}
+          onChange={handleInputChange}
           className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
         />
-        {errors.title && (
-          <p className="mt-2 text-sm text-red-600">{errors.title.message}</p>
-        )}
       </div>
 
       <div>
@@ -96,14 +111,11 @@ export default function EditProductForm({ data }: any) {
         </label>
         <textarea
           id="description"
-          {...register("description")}
+          name="description"
+          value={formData.description}
+          onChange={handleInputChange}
           className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
         />
-        {errors.description && (
-          <p className="mt-2 text-sm text-red-600">
-            {errors.description.message}
-          </p>
-        )}
       </div>
 
       <div>
@@ -115,13 +127,12 @@ export default function EditProductForm({ data }: any) {
         </label>
         <input
           id="price"
+          name="price"
           type="number"
-          {...register("price")}
+          value={formData.price}
+          onChange={handleInputChange}
           className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
         />
-        {errors.price && (
-          <p className="mt-2 text-sm text-red-600">{errors.price.message}</p>
-        )}
       </div>
 
       <div>
@@ -133,17 +144,31 @@ export default function EditProductForm({ data }: any) {
         </label>
         <select
           id="condition"
-          {...register("condition")}
+          name="condition"
+          value={formData.condition}
+          onChange={handleInputChange}
           className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
         >
           <option value="new">New</option>
           <option value="used">Used</option>
         </select>
-        {errors.condition && (
-          <p className="mt-2 text-sm text-red-600">
-            {errors.condition.message}
-          </p>
-        )}
+      </div>
+
+      <div>
+        <label
+          htmlFor="category"
+          className="block text-sm font-medium text-gray-700"
+        >
+          Category
+        </label>
+        <input
+          id="category"
+          name="category"
+          type="text"
+          value={formData.category}
+          onChange={handleInputChange}
+          className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+        />
       </div>
 
       <div>
@@ -155,26 +180,30 @@ export default function EditProductForm({ data }: any) {
         </label>
         <input
           id="images"
+          name="images"
           type="file"
           accept="image/*"
           multiple
-          onChange={handleImageUpload}
+          onChange={handleFileChange}
           className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
         />
-        {errors.images && (
-          <p className="mt-2 text-sm text-red-600">{errors.images.message}</p>
-        )}
       </div>
 
       <div>
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full px-4 py-2 font-medium text-white bg-blue-600 rounded-lg shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          className={`w-full px-4 py-2 font-medium text-white rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+            isLoading
+              ? "bg-blue-400 cursor-not-allowed opacity-50"
+              : "bg-blue-600 hover:bg-blue-700"
+          }`}
         >
           {isLoading ? "Updating..." : "Update Listing"}
         </button>
       </div>
     </form>
   );
-}
+};
+
+export default EditProductForm;

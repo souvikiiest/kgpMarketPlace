@@ -7,10 +7,10 @@ const prisma = new PrismaClient();
 
 const editProductSchema = z.object({
   title: z.string().min(3),
-  description: z.string().min(6),
+  description: z.string().min(2),
   price: z.number().positive(),
   condition: z.enum(["new", "refurbished"]),
-  category: z.string().min(4),
+  category: z.string().min(2),
   imageUrl: z.array(z.string()),
 });
 
@@ -47,7 +47,8 @@ export async function PUT(
       return new NextResponse(JSON.stringify(parsedValue.error), {
         status: 400,
       });
-    const { title, description, price, condition, category } = parsedValue.data;
+    const { title, description, price, condition, category, imageUrl } =
+      parsedValue.data;
     let categoryResponse = await prisma.category.findFirst({
       where: { name: category },
     });
@@ -58,7 +59,18 @@ export async function PUT(
         },
       });
     }
-
+    const productResponse = await prisma.product.update({
+      where: {
+        id: isExisting.productId,
+      },
+      data: {
+        name: title,
+        description,
+        price,
+        condition,
+        imageUrl,
+      },
+    });
     const editResponse = await prisma.listing.update({
       where: {
         id,
@@ -69,22 +81,14 @@ export async function PUT(
         description,
         price,
         condition,
-
+        imageUrl,
         categoryId: categoryResponse.id,
+        productId: productResponse.id,
+        userId: decodedValue.userId,
       },
     });
-    const productResponse = await prisma.product.update({
-      where: {
-        id: isExisting.productId,
-      },
-      data: {
-        name: title,
-        description,
-        price,
-        condition,
-      },
-    });
-    return new NextResponse(JSON.stringify({ editResponse, productResponse }), {
+
+    return new NextResponse(JSON.stringify({ editResponse }), {
       status: 200,
     });
   } catch (err) {
