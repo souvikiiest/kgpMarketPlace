@@ -118,7 +118,7 @@ const NewListingPage = () => {
             id="name"
             name="name"
             type="text"
-            placeholder=" Enter your product name (minimum 3 character)"
+            placeholder="Product name (min 3 character)"
             value={formData.name}
             onChange={handleInputChange}
             className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
@@ -189,7 +189,7 @@ const NewListingPage = () => {
             id="category"
             name="category"
             type="text"
-            placeholder=" Category ..."
+            placeholder=" Category ...(min 3 character)"
             value={formData.category}
             onChange={handleInputChange}
             className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"

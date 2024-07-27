@@ -28,6 +28,8 @@ const ListingsPage = async () => {
           select: {
             id: true,
             title: true,
+            price: true,
+            updatedAt: true,
           },
         },
       },
@@ -44,19 +46,29 @@ const ListingsPage = async () => {
   }
 
   return (
-    <div>
+    <div className="container mx-auto p-4">
       <h1 className="mb-4 text-2xl font-bold text-center">My Listings</h1>
-      <ul className="space-y-2">
-        {listings.map((listing: { id: string; title: string }) => (
-          <li key={listing.id}>
-            <Link
-              href={`/profile/listings/${listing.id}`}
-              className="block px-4 py-2 text-blue-500 hover:underline"
-            >
-              {listing.title}
-            </Link>
-          </li>
-        ))}
+      <ul className="space-y-4">
+        {listings.map(
+          (listing: {
+            id: string;
+            title: string;
+            price: number;
+            updatedAt: Date;
+          }) => (
+            <li key={listing.id} className="border p-4 rounded-lg shadow-lg">
+              <Link href={`/profile/listings/${listing.id}`}>
+                <div className="block text-lg font-semibold text-blue-500 hover:underline">
+                  {listing.title}
+                </div>
+              </Link>
+              <p className="text-gray-700">Price: ₹{listing.price}</p>
+              <p className="text-sm text-gray-500">
+                Updated: {new Date(listing.updatedAt).toLocaleDateString()}
+              </p>
+            </li>
+          )
+        )}
       </ul>
     </div>
   );

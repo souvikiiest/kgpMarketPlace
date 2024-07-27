@@ -18,22 +18,22 @@ const Navbar = async () => {
   }
 
   return (
-    <nav className="flex items-center justify-between p-4 bg-gray-800">
-      <Link href="/" className="text-white text-xl md:text-2xl">
+    <nav className="flex items-center justify-between p-2 md:p-4 bg-gray-800">
+      <Link href="/" className="text-white text-sm md:text-xl">
         KGP MARKETPLACE
       </Link>
-      <div className="flex space-x-4">
+      <div className="flex  space-x-1 md:space-x-4 md:space-y-0 ">
         {isAuthenticated ? (
           <>
             <Link
               href="/new-listings"
-              className="text-white bg-blue-500 px-2 py-2 md:px-4 md:py-2 rounded-md"
+              className="text-white flex bg-blue-500 text-xs items-center md:text-base px-2 md:px-4 py-1 md:py-2 rounded-md"
             >
               ADD PRODUCT
             </Link>
             <Link
               href="/profile"
-              className="text-white bg-green-500 px-2 py-2 md:px-4 md:py-2 rounded-md"
+              className="text-white flex items-center bg-green-500 text-xs md:text-base px-2 md:px-4 py-1 md:py-2 rounded-md"
             >
               Profile
             </Link>
@@ -43,13 +43,13 @@ const Navbar = async () => {
           <>
             <Link
               href="/signin"
-              className="text-white bg-blue-500 px-2 py-2 md:px-4 md:py-2 rounded-md"
+              className="text-white flex items-center bg-blue-500 text-xs md:text-base px-2 md:px-4 py-1 md:py-2 rounded-md"
             >
               Login
             </Link>
             <Link
               href="/signup"
-              className="text-white bg-blue-500 px-2 py-2 md:px-4 md:py-2 rounded-md"
+              className="text-white bg-blue-500 text-xs md:text-base px-2 md:px-4 py-1 md:py-2 rounded-md"
             >
               Signup
             </Link>

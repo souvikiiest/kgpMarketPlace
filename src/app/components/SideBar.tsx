@@ -6,7 +6,7 @@ const Sidebar = () => {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 p-4 bg-white rounded-lg shadow-md">
+    <aside className="w-auto p-4 bg-white rounded-lg shadow-md">
       <h2 className="mb-4 text-xl font-bold">Menu</h2>
       <ul className="space-y-2">
         <li>

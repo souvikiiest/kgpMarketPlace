@@ -104,7 +104,7 @@ const EditProductForm = ({ data }: any) => {
         <input
           id="title"
           name="title"
-          placeholder=" Enter your product name (minimum 3 character)"
+          placeholder="Product name (minimum 3 character)"
           type="text"
           value={formData.title}
           onChange={handleInputChange}
@@ -177,7 +177,7 @@ const EditProductForm = ({ data }: any) => {
           id="category"
           name="category"
           type="text"
-          placeholder="  Category (minimum 3 character)"
+          placeholder="(minimum 3 character)"
           value={formData.category}
           onChange={handleInputChange}
           className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
