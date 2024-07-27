@@ -3,17 +3,14 @@ import { NextRequest, NextResponse } from "next/server";
 import verifyToken from "../../backend-utils/jwt";
 
 const prisma = new PrismaClient();
-const JWT_SECRET = process.env.JWT_SECRET;
 
 export async function GET(req: NextRequest) {
   try {
-    const token = req.headers.get("authorization")?.split(" ")[1];
     const decodedValue = verifyToken();
     if (!decodedValue)
       return new NextResponse(JSON.stringify({ message: "Unauthorized" }), {
         status: 401,
       });
-    const userId = decodedValue.userId;
 
     const allListings = await prisma.listing.findMany({
       where: { userId: decodedValue.userId },
