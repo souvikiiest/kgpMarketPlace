@@ -1,8 +1,7 @@
 import { PrismaClient } from "@prisma/client";
-import jwt from "jsonwebtoken";
-import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import * as z from "zod";
+import verifyToken from "../backend-utils/jwt";
 const prisma = new PrismaClient();
 
 const productSchema = z.object({
@@ -13,10 +12,8 @@ const productSchema = z.object({
   category: z.string().min(3),
   imageUrl: z.array(z.string()),
 });
-const JWT_SECRET = process.env.JWT_SECRET;
 
 export async function POST(req: NextRequest) {
-  const cookieStore = cookies();
   try {
     const data = await req.json();
     const validatedData = productSchema.safeParse(data);
@@ -29,15 +26,12 @@ export async function POST(req: NextRequest) {
     }
     const { name, description, price, condition, category, imageUrl } =
       validatedData.data;
-    const token = cookieStore.get("token");
-    if (!token)
+
+    const decodedValue = verifyToken();
+    if (!decodedValue)
       return new NextResponse(JSON.stringify({ message: "Unauthorized" }), {
         status: 400,
       });
-    const decodedValue = jwt.verify(token.value, JWT_SECRET!) as {
-      userId: string;
-    };
-
     let categoryResponse = await prisma.category.findFirst({
       where: { name: category },
     });

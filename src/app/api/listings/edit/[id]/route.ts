@@ -1,5 +1,4 @@
 import { PrismaClient } from "@prisma/client";
-import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import * as z from "zod";
 import verifyToken from "../../../backend-utils/jwt";
@@ -102,9 +101,7 @@ export async function DELETE(
   context: { params: { id: string } }
 ) {
   const id = context.params.id;
-  const CookieStore = cookies();
   try {
-    const token = CookieStore.get("token");
     const decodedValue = verifyToken();
     if (!decodedValue)
       return new NextResponse(JSON.stringify({ message: "Unauthorized" }), {

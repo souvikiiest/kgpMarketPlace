@@ -1,6 +1,5 @@
+import verifyToken from "@/app/api/backend-utils/jwt";
 import { PrismaClient } from "@prisma/client";
-import jwt from "jsonwebtoken";
-import { cookies } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
@@ -8,10 +7,9 @@ const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET!;
 
 const ListingsPage = async () => {
-  const cookieStore = cookies();
-  const token = cookieStore.get("token");
+  const decoded = verifyToken();
 
-  if (!token) {
+  if (!decoded) {
     redirect("/signin");
   }
 
@@ -19,7 +17,6 @@ const ListingsPage = async () => {
   let listings;
 
   try {
-    const decoded = jwt.verify(token.value, JWT_SECRET) as { userId: string };
     user = await prisma.user.findUnique({
       where: { id: decoded.userId },
       select: {
