@@ -1,9 +1,9 @@
-import { Listing, PrismaClient } from "@prisma/client";
+import { ListingM } from "@/app/types";
+import { PrismaClient } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
-
 const prisma = new PrismaClient();
 
-interface ListingModified extends Listing {
+interface ListingModified extends ListingM {
   product: {
     id: string;
     name: string;

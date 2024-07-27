@@ -19,3 +19,16 @@ export interface Listing {
     name: string;
   };
 }
+export type ListingM = {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  condition: string;
+  imageUrl: string[];
+  createdAt: Date;
+  updatedAt: Date;
+  userId: string;
+  productId: string;
+  categoryId: string;
+};
