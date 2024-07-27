@@ -5,6 +5,7 @@ import { updateListing } from "../actions/updateListings"; // This should be the
 
 const EditProductForm = ({ data }: any) => {
   const router = useRouter();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     title: data.title,
     description: data.description,
@@ -25,17 +26,21 @@ const EditProductForm = ({ data }: any) => {
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    setIsLoading(true);
-    if (e.target.files) {
-      const files = Array.from(e.target.files);
-      const fileUrls: string[] = [];
-      for (const file of files) {
-        const fileUrl: string = await handleImageUpload(file);
-        fileUrls.push(fileUrl);
-      }
+    try {
+      setIsLoading(true);
+      if (e.target.files) {
+        const files = Array.from(e.target.files);
+        const fileUrls: string[] = [];
+        for (const file of files) {
+          const fileUrl: string = await handleImageUpload(file);
+          fileUrls.push(fileUrl);
+        }
 
-      setImageUrls([...imageUrls, ...fileUrls]);
-      setIsLoading(false);
+        setImageUrls([...imageUrls, ...fileUrls]);
+        setIsLoading(false);
+      }
+    } catch (err) {
+      setErrorMessage("Failed to upload image, please try again ");
     }
   };
 
@@ -50,10 +55,12 @@ const EditProductForm = ({ data }: any) => {
       });
       const uploadData = await uploadResponse.json();
       if (!uploadData.status) {
+        setErrorMessage("Failed to upload image, please try again ");
         throw new Error("Failed to upload image");
       }
       return uploadData.fileUrl;
     } catch (error) {
+      setErrorMessage("Failed to upload image, please try again ");
       console.error("Error uploading image:", error);
     }
   };
@@ -68,15 +75,17 @@ const EditProductForm = ({ data }: any) => {
         price: parseFloat(formData.price),
         imageUrl: imageUrls,
       };
-      console.log(updatedData);
+
       const response = await updateListing(data.id, updatedData);
 
       if (response.ok) {
         router.push("/home");
       } else {
+        setErrorMessage("Failed to update, please check constraints ");
         console.error("Error updating listing:", response.error);
       }
     } catch (error) {
+      setErrorMessage("Failed to update, please check constraints ");
       console.error("Error updating listing:", error);
     } finally {
       setIsLoading(false);
@@ -95,6 +104,7 @@ const EditProductForm = ({ data }: any) => {
         <input
           id="title"
           name="title"
+          placeholder=" Enter your product name (minimum 3 character)"
           type="text"
           value={formData.title}
           onChange={handleInputChange}
@@ -112,6 +122,7 @@ const EditProductForm = ({ data }: any) => {
         <textarea
           id="description"
           name="description"
+          placeholder="  Description (minimum 3 character)"
           value={formData.description}
           onChange={handleInputChange}
           className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
@@ -129,6 +140,7 @@ const EditProductForm = ({ data }: any) => {
           id="price"
           name="price"
           type="number"
+          placeholder="100"
           value={formData.price}
           onChange={handleInputChange}
           className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
@@ -165,6 +177,7 @@ const EditProductForm = ({ data }: any) => {
           id="category"
           name="category"
           type="text"
+          placeholder="  Category (minimum 3 character)"
           value={formData.category}
           onChange={handleInputChange}
           className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
@@ -188,7 +201,9 @@ const EditProductForm = ({ data }: any) => {
           className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
         />
       </div>
-
+      {errorMessage && (
+        <p className="mt-2 text-sm text-red-600">{errorMessage}</p>
+      )}
       <div>
         <button
           type="submit"

@@ -7,7 +7,7 @@ import verifyToken from "../../../backend-utils/jwt";
 const prisma = new PrismaClient();
 
 const editProductSchema = z.object({
-  title: z.string().min(3),
+  title: z.string().min(2),
   description: z.string().min(2),
   price: z.number().positive(),
   condition: z.enum(["new", "refurbished"]),

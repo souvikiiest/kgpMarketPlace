@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -14,8 +13,8 @@ const schema = z.object({
 type SigninFormData = z.infer<typeof schema>;
 
 const SigninForm = () => {
-  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const {
     register,
     handleSubmit,
@@ -36,12 +35,13 @@ const SigninForm = () => {
       });
 
       if (!response.ok) {
+        setErrorMessage("Check email or password");
         throw new Error("Signin failed");
       }
 
       window.location.href = "/home";
     } catch (error) {
-      console.error("Error:", error);
+      setErrorMessage("Please check email and password");
     } finally {
       setIsLoading(false);
     }
@@ -84,6 +84,9 @@ const SigninForm = () => {
           <p className="mt-2 text-sm text-red-600">{errors.password.message}</p>
         )}
       </div>
+      {errorMessage && (
+        <p className="mt-2 text-sm text-red-600">{errorMessage}</p>
+      )}
 
       <div>
         <button

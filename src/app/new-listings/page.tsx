@@ -6,6 +6,7 @@ const NewListingPage = () => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState("");
   const [imageUrls, setImageUrl] = useState<string[] | null>([]);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -25,16 +26,20 @@ const NewListingPage = () => {
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsLoading("image");
-    if (e.target.files) {
-      const files = Array.from(e.target.files);
-      const fileUrls: string[] = [];
-      for (const file of files) {
-        const fileUrl: string = await handleImageUpload(file);
-        fileUrls.push(fileUrl);
-      }
+    try {
+      if (e.target.files) {
+        const files = Array.from(e.target.files);
+        const fileUrls: string[] = [];
+        for (const file of files) {
+          const fileUrl: string = await handleImageUpload(file);
+          fileUrls.push(fileUrl);
+        }
 
-      setImageUrl(fileUrls);
-      setIsLoading("false");
+        setImageUrl(fileUrls);
+        setIsLoading("false");
+      }
+    } catch (err) {
+      setErrorMsg("Failed to upload image please try again");
     }
   };
 
@@ -50,11 +55,16 @@ const NewListingPage = () => {
       });
       const uploadData = await uploadResponse.json();
       if (!uploadData.status) {
+        setErrorMsg(
+          "Failed to upload image, please refresh the page and try again"
+        );
         throw new Error("Failed to upload image");
       }
       return uploadData.fileUrl;
     } catch (error) {
-      console.error("Error uploading image:", error);
+      setErrorMsg(
+        "Failed to upload image, please refresh the page and try again"
+      );
     }
   };
 
@@ -77,12 +87,13 @@ const NewListingPage = () => {
       });
 
       if (!response.ok) {
+        setErrorMsg("Failed to upload product, please check the constraints ");
         throw new Error("Failed to create listing");
       }
 
       router.push("/home");
     } catch (error) {
-      console.error("Error creating listing:", error);
+      setErrorMsg("Failed to upload product, please check the constraints ");
     } finally {
       setIsLoading("false");
     }
@@ -107,6 +118,7 @@ const NewListingPage = () => {
             id="name"
             name="name"
             type="text"
+            placeholder=" Enter your product name (minimum 3 character)"
             value={formData.name}
             onChange={handleInputChange}
             className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
@@ -123,6 +135,7 @@ const NewListingPage = () => {
           <textarea
             id="description"
             name="description"
+            placeholder=" Enter your product description (minimum 3 character)"
             value={formData.description}
             onChange={handleInputChange}
             className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
@@ -176,6 +189,7 @@ const NewListingPage = () => {
             id="category"
             name="category"
             type="text"
+            placeholder=" Category ..."
             value={formData.category}
             onChange={handleInputChange}
             className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
@@ -193,12 +207,13 @@ const NewListingPage = () => {
             id="image"
             name="image"
             type="file"
+            accept="image/*"
             multiple
             onChange={handleFileChange}
             className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
-
+        {errorMsg && <p className="mt-2 text-sm text-red-600">{errorMsg}</p>}
         <div>
           <button
             type="submit"

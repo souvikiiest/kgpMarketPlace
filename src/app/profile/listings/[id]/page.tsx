@@ -1,7 +1,7 @@
+import CarouselComponent from "@/app/components/CarouselComponent";
 import ListingActions from "@/app/components/ListingsAction";
 import { PrismaClient } from "@prisma/client";
-import Image from "next/image";
-import { Key } from "react";
+import "react-responsive-carousel/lib/styles/carousel.min.css";
 
 const prisma = new PrismaClient();
 export default async function dataDetails(context: { params: { id: string } }) {
@@ -35,17 +35,7 @@ export default async function dataDetails(context: { params: { id: string } }) {
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">{data.title}</h1>
       <div className="mb-4">
-        {data.imageUrl &&
-          data.imageUrl.map((url: string | undefined, index: Key) => (
-            <Image
-              key={index}
-              height={200}
-              width={200}
-              src={url!}
-              alt={data.title}
-              className="w-48 h-48 object-cover mr-2"
-            />
-          ))}
+        <CarouselComponent data={data} />
       </div>
       <p className="mb-4">
         <strong>Description:</strong> {data.description}
