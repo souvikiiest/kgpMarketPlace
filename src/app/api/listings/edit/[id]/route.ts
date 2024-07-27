@@ -70,7 +70,7 @@ export async function PUT(
         description,
         price,
         condition,
-        imageUrl,
+
         categoryId: categoryResponse.id,
       },
     });
@@ -83,7 +83,6 @@ export async function PUT(
         description,
         price,
         condition,
-        imageUrl,
       },
     });
     return new NextResponse(JSON.stringify({ editResponse, productResponse }), {
@@ -106,7 +105,7 @@ export async function DELETE(
   const CookieStore = cookies();
   try {
     const token = CookieStore.get("token");
-    const decodedValue = token ? verifyToken(token) : null;
+    const decodedValue = verifyToken();
     if (!decodedValue)
       return new NextResponse(JSON.stringify({ message: "Unauthorized" }), {
         status: 401,
