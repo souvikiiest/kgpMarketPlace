@@ -2,7 +2,7 @@ import { ListingM } from "@/app/types";
 import { PrismaClient } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 const prisma = new PrismaClient();
-
+export const dynamic = "force-dynamic";
 interface ListingModified extends ListingM {
   product: {
     id: string;
